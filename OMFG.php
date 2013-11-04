@@ -115,7 +115,7 @@ class omfgConfig{
 		//Clean-up class variables.
 		unset($this->configuration);
 	}
-}
+} //End omfgConfig
 
 /*
   Class: omfgJson
@@ -129,7 +129,7 @@ class omfgJson{
 	/* Default Destructor */
 	function __destruct(){
 	}
-}
+} //End omfgJson
 
 /*
   Class: omfgThumbnail
@@ -140,24 +140,157 @@ class omfgJson{
   retrieval, depending on the value of enableCaching (defaults to false)
 */
 class omfgThumbnail{
-    //Boolean feature flags
+  //Boolean feature flags
+	
+	//Imagick library support
 	var $imagickSupport;
+	//ImageMagick command line support
+	var $imagickCmdSupport;
+	//Path to the ImageMagick command line programs
+	var $imagickCmdPath;
+	//GD library support
+	var $gdSupport;
+	//Create cached images?
 	var $createCache;
+	//Cache Directory
+	var $cacheDir;
+	//Thumbnail Height
+	var $thumbHeight;
 	
 	/* Default Constructor */
-	function __construct($enableCaching=false){
-		//Check for Imagick support
-		if(class_exists('Imagick')){
-			$this->imagickSupport = true;
-		}else{
-			$this->imagickSupport = false;
-		}
+	function __construct($thumbHeight, $cacheDir='', $enableCaching=false, $imagickPath=''){
+		//Set the path to the command line programs for ImageMagick
+		$this->imagickCmdPath = $imagickPath.'/';
+		//Check what our options are 
+		$this->imagickSupport = $this->checkImagickLibrary();
+		$this->imagickCmdSupport = $this->checkImagickCmd();
+		$this->gdSupport = $this->checkGDLibrary();
+		
 		//Set caching
 		$this->createCache = $enableCaching;
+		//Set cache directory
+		$this->cacheDir = $cacheDir;
+		//Set thumbnail height
+		$this->thumbHeight = $thumbheight;
+	}
+	
+/*
+	Function: getThumbnail
+	This function generates an image thumbnail and will return that thumbnail. If 
+	caching is enabled, it will use the cached image instead of generating a new 
+	thumbnail.
+*/
+	public function getThumbnail(){
+		if($this->imagickSupport){
+			//Generate thumbnail as Imagick library
+		}else if($this->imagickCmdSupport){
+			//Generate thumbnail as ImageMagick program
+		}else if($this->gdSupport){
+			//Generate thumbnail as GD library
+		}else{
+			/* Fail! */
+		}
+	}
+
+/*
+	Function: generateThumbnailImagick
+	This function generates a thumbnail of the given image using the Imagick 
+	library	and, if necessary, will	create a cached copy of the image.
+	@Args:
+	@Returns:
+*/	
+	private function generateThumbnailImagick(){
+	}
+
+/*
+	Function: generateThumbnailCmd
+	This function generates a thumbnail of the given image using the ImageMagick 
+	command line programs and, if necessary, will	create a cached copy of the 
+	image.
+	@Args:
+	@Returns:
+*/
+	private function generateThumbnailCmd(){
+	}
+	
+/*
+	Function: generateThumbnailGD
+	This function generates a thumbnail of the given image using the GD library 
+	and, if necessary, will	create a cached copy of the image.
+	@Args:
+	@Returns:
+*/
+	private function generateThumbnailGD(){
+		
+	}
+	
+/*
+	Function: checkImagickLibrary
+	This function simply returns the results for whether or not the class for 
+	Imagick exists.
+	@Args: None
+	@Returns: boolean Imagick Exists
+*/	
+	private function checkImagickLibrary(){
+		//Check for Imagick support
+		return class_exists('Imagick');
+	}
+
+/*
+	Function: checkImagickCmd
+	This function first attempts to determine if we can execute external commands 
+	before moving on to determine if the ImageMagick program is installed.
+	@Args: None
+	@Returns: boolean ImageMagick Exists
+*/
+	private function checkImagickCmd(){
+		//First, we need to see if we can run anything externally.
+		if($this->execCheck()){
+			 $output='';
+			 $returnCode = -1;
+			 //Execute 'convert -version' to see if it does anything.	
+			 exec($this->imagickCmdPath."convert -version", $output, $returnCode);
+			 if(intval($returnCode) == 0){
+			 		//Return code 0 means the file exists and works
+			 		return true;
+			 }else{
+			 		//Anything else means there is no program there
+			 	  return false;
+			 }
+		}else{
+			//Since we can't execute things on the commant line with exec(), we can't 
+			//use this method.
+			return false;
+		}
+	}
+
+/*
+	Function: checkGDLibrary
+	This program simply returns the results of whether the GD extension is loaded 
+	by PHP.
+	@Args: None
+	@Returns: boolean GD Exists
+*/	
+	private function checkGDLibrary(){
+	//Check for GD support
+		return extension_loaded('gd');
+	}
+	
+/*
+	Function: execCheck
+	This function was copied from an answer on Stack Overflow 
+	(http://stackoverflow.com/a/3938155/557748)because it is an elegant solution 
+	to the problem of checking to see if we can use exec() in	PHP.
+	@Args: None
+	@Returns: boolean The Function does/does not exist. 
+*/
+	private function execCheck() {
+	  $disabled = explode(', ', ini_get('disable_functions'));
+	  return !in_array('exec', $disabled);
 	}
 	
 	/* Default Destructor*/
 	function __destruct(){
 	}
-}
+} //End omfgThumbnail
 ?>

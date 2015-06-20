@@ -3,7 +3,7 @@
 	 O. M. F. G. !
 	 One Main File Gallery (or not)
 	 
-	 Copyright ©2013 Justin Pearce (whitefox@guardianfox.net)
+	 Copyright ©2014 Justin Pearce (whitefox@guardianfox.net)
 	 This program is free software: you can redistribute it and/or modify
 	 it under the terms of the GNU Affero General Public License as published by
 	 the Free Software Foundation, either version 3 of the License, or
@@ -65,7 +65,8 @@ class omfgConfig{
 		$defaultConfig['general'] = array('start_path'=>'.', 'disallowed'=>'php, php4, php5, phps',
 										  'page_title'=>'OMFG!', 'files_label'=>'', 'folders_label'=>'');
 		$defaultConfig['options'] = array('thumb_height'=>75, 'files_per_page'=>25, 'max_columns'=>3, 
-										  'enable_ajax'=>false, 'memory_limit'=>'256M', 'cache_thumbs'=>false);
+										  'enable_ajax'=>false, 'memory_limit'=>'256M', 'cache_thumbs'=>false, 
+											'thumbs_dir'=>'/.thumbs', 'icons_dir'=>'/.icons');
 		return $defaultConfig;
 	}
 	
@@ -183,12 +184,16 @@ class omfgThumbnail{
 	public function getThumbnail(){
 		if($this->imagickSupport){
 			//Generate thumbnail as Imagick library
+			$this->generateThumbnailImagick(/* ARGS */);
 		}else if($this->imagickCmdSupport){
 			//Generate thumbnail as ImageMagick program
+			$this->generateThumbnailCmd(/* ARGS */);
 		}else if($this->gdSupport){
 			//Generate thumbnail as GD library
+			$this->generateThumbnailGD();
 		}else{
 			/* Fail! */
+			return false;
 		}
 	}
 
